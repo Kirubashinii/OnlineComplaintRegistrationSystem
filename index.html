@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComplaintDesk — Portal Entry</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090f;
+  --surface:#111318;
+  --surface2:#181b24;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --user:#4f9cf9;
+  --user-dim:rgba(79,156,249,0.12);
+  --admin:#f97316;
+  --admin-dim:rgba(249,115,22,0.12);
+  --text:#eef0f8;
+  --text2:#8b91b5;
+  --text3:#3e4260;
+  --danger:#ef4444;
+  --success:#22c55e;
+  --font-d:'Syne',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --r:14px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;overflow:hidden}
+
+.light{position:fixed;border-radius:50%;pointer-events:none;filter:blur(80px)}
+.light-l{width:500px;height:500px;background:rgba(79,156,249,0.07);top:-100px;left:-150px}
+.light-r{width:400px;height:400px;background:rgba(249,115,22,0.06);bottom:-100px;right:-100px}
+
+.wrap{position:relative;z-index:1;width:100%;max-width:900px;text-align:center}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2.5rem}
+.brand-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--user),var(--admin));display:flex;align-items:center;justify-content:center;font-size:20px}
+.brand-name{font-family:var(--font-d);font-size:22px;font-weight:800;letter-spacing:-0.5px}
+h1{font-family:var(--font-d);font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:.75rem}
+.sub{font-size:15px;color:var(--text2);font-weight:300;margin-bottom:3rem}
+
+.portals{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:2rem}
+.portal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:2rem;cursor:pointer;transition:all .25s;text-align:left;position:relative;overflow:hidden;text-decoration:none;display:block;}
+.portal-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;}
+.portal-card.user::before{background:linear-gradient(135deg,rgba(79,156,249,0.06),transparent)}
+.portal-card.admin::before{background:linear-gradient(135deg,rgba(249,115,22,0.06),transparent)}
+.portal-card:hover{transform:translateY(-4px);border-color:var(--border2)}
+.portal-card.user:hover{border-color:rgba(79,156,249,0.3);box-shadow:0 20px 60px rgba(79,156,249,0.1)}
+.portal-card.admin:hover{border-color:rgba(249,115,22,0.3);box-shadow:0 20px 60px rgba(249,115,22,0.1)}
+.portal-card:hover::before{opacity:1}
+.portal-icon{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:1.25rem;}
+.portal-card.user .portal-icon{background:var(--user-dim)}
+.portal-card.admin .portal-icon{background:var(--admin-dim)}
+.portal-title{font-family:var(--font-d);font-size:20px;font-weight:700;margin-bottom:.4rem}
+.portal-card.user .portal-title{color:var(--user)}
+.portal-card.admin .portal-title{color:var(--admin)}
+.portal-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:1.5rem}
+.portal-features{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:1.5rem}
+.portal-features li{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:7px}
+.portal-features li::before{content:'';width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.portal-card.user .portal-features li::before{background:var(--user)}
+.portal-card.admin .portal-features li::before{background:var(--admin)}
+.portal-cta{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:500;font-family:var(--font-b);border:1px solid;transition:all .2s;}
+.portal-card.user .portal-cta{color:var(--user);border-color:rgba(79,156,249,0.3);background:rgba(79,156,249,0.08)}
+.portal-card.user:hover .portal-cta{background:rgba(79,156,249,0.18)}
+.portal-card.admin .portal-cta{color:var(--admin);border-color:rgba(249,115,22,0.3);background:rgba(249,115,22,0.08)}
+.portal-card.admin:hover .portal-cta{background:rgba(249,115,22,0.18)}
+
+.divider-line{height:1px;background:var(--border);margin-bottom:1.5rem}
+.footer-note{font-size:12px;color:var(--text3);text-align:center}
+.footer-note span{color:var(--text2)}
+
+/* ── Overlay & Modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.show{display:flex}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:18px;padding:2.25rem;width:100%;max-width:420px;animation:modalIn .25s ease;position:relative;}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.modal-close{position:absolute;top:1.25rem;right:1.25rem;width:28px;height:28px;border-radius:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.modal-close:hover{background:var(--border2);color:var(--text)}
+.modal-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1.25rem;border:1px solid;}
+.modal-badge.user{color:var(--user);background:var(--user-dim);border-color:rgba(79,156,249,0.2)}
+.modal-badge.admin{color:var(--admin);background:var(--admin-dim);border-color:rgba(249,115,22,0.2)}
+.modal-badge-dot{width:6px;height:6px;border-radius:50%}
+.modal-badge.user .modal-badge-dot{background:var(--user)}
+.modal-badge.admin .modal-badge-dot{background:var(--admin)}
+
+/* ── Auth Tabs (Sign In / Register) ── */
+.auth-tabs{display:flex;gap:4px;background:var(--surface);border-radius:10px;padding:4px;margin-bottom:1.5rem}
+.auth-tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;font-family:var(--font-b);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .18s;}
+.auth-tab.active{background:var(--user);color:#fff;font-weight:600;}
+.auth-panel{display:none}
+.auth-panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.modal-title{font-family:var(--font-d);font-size:22px;font-weight:700;margin-bottom:.3rem}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text2)}
+input{background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:11px 14px;font-family:var(--font-b);font-size:14px;color:var(--text);outline:none;transition:all .2s;width:100%;}
+input::placeholder{color:var(--text3)}
+input:focus{border-color:var(--user);box-shadow:0 0 0 3px rgba(79,156,249,0.12)}
+.admin-modal input:focus{border-color:var(--admin);box-shadow:0 0 0 3px rgba(249,115,22,0.1)}
+input.invalid{border-color:var(--danger)}
+.err-msg{font-size:12px;color:var(--danger);display:none;margin-top:3px}
+.err-msg.show{display:block}
+
+.btn-login{width:100%;padding:12px;border-radius:9px;border:none;font-family:var(--font-b);font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;transition:all .2s;letter-spacing:.2px;}
+.btn-login.user{background:var(--user);color:#fff;box-shadow:0 4px 20px rgba(79,156,249,0.3)}
+.btn-login.user:hover{background:#3d8be8;box-shadow:0 6px 28px rgba(79,156,249,0.45)}
+.btn-login.admin{background:var(--admin);color:#fff;box-shadow:0 4px 20px rgba(249,115,22,0.3)}
+.btn-login.admin:hover{background:#e86012;box-shadow:0 6px 28px rgba(249,115,22,0.45)}
+.btn-login:active{transform:scale(.98)}
+.btn-login:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.demo-hint{font-size:11px;color:var(--text3);text-align:center;margin-top:1rem}
+.demo-hint span{color:var(--text2);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+/* Password strength bar */
+.pwd-strength{height:3px;border-radius:2px;margin-top:6px;background:var(--border2);overflow:hidden}
+.pwd-strength-fill{height:100%;width:0;border-radius:2px;transition:all .3s}
+.pwd-hint{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* Success state */
+.reg-success{display:none;text-align:center;padding:1.5rem 0}
+.reg-success.show{display:block;animation:fadeIn .3s ease}
+.reg-success-icon{font-size:42px;margin-bottom:.75rem}
+.reg-success h3{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--success);margin-bottom:.4rem}
+.reg-success p{font-size:13px;color:var(--text2)}
+
+@media(max-width:600px){.portals{grid-template-columns:1fr}h1{font-size:1.8rem}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="light light-l"></div>
+<div class="light light-r"></div>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-icon">📋</div>
+    <div class="brand-name">ComplaintDesk</div>
+  </div>
+
+  <h1>Choose your portal</h1>
+  <p class="sub">Select how you'd like to access the complaint management system</p>
+
+  <div class="portals">
+    <a class="portal-card user" onclick="openLogin('user');return false" href="#">
+      <div class="portal-icon">👤</div>
+      <div class="portal-title">User Portal</div>
+      <div class="portal-desc">Register complaints, track their status, and get timely updates on resolution.</div>
+      <ul class="portal-features">
+        <li>Submit new complaints</li>
+        <li>Track complaint status in real-time</li>
+        <li>View history of your complaints only</li>
+        <li>Receive admin responses</li>
+      </ul>
+      <div class="portal-cta">Sign In or Register →</div>
+    </a>
+
+    <a class="portal-card admin" onclick="openLogin('admin');return false" href="#">
+      <div class="portal-icon">🛡️</div>
+      <div class="portal-title">Admin Portal</div>
+      <div class="portal-desc">Manage all complaints, update statuses, assign to departments, and generate reports.</div>
+      <ul class="portal-features">
+        <li>View all registered complaints</li>
+        <li>Update statuses &amp; add notes</li>
+        <li>Filter, search, and prioritize</li>
+        <li>Dashboard with analytics</li>
+      </ul>
+      <div class="portal-cta">Enter Admin Portal →</div>
+    </a>
+  </div>
+
+  <div class="divider-line"></div>
+  <div class="footer-note">Complaint Management System &nbsp;·&nbsp; <span>v3.0</span> &nbsp;·&nbsp; Secure &amp; Confidential</div>
+</div>
+
+<!-- ════════════════ USER Modal (Sign In + Register) ════════════════ -->
+<div class="overlay" id="overlay-user">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLogin('user')">✕</button>
+    <div class="modal-badge user"><div class="modal-badge-dot"></div>User Portal</div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- ── SIGN IN panel ── -->
+    <div class="auth-panel active" id="panel-signin">
+      <div class="modal-title">Welcome back</div>
+      <div class="modal-sub">Sign in to manage your complaints</div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="u-email" placeholder="your@email.com" autocomplete="email">
+        <div class="err-msg" id="ue-email">Enter a valid email</div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="u-pass" placeholder="••••••••" autocomplete="current-password">
+        <div class="err-msg" id="ue-pass">Password is required</div>
+      </div>
+      <button class="btn-login user" id="btn-signin" onclick="loginUser()">Sign In to User Portal</button>
+      <div class="demo-hint">Demo: <span onclick="fillDemo('user')">click to fill credentials</span></div>
+    </div>
+
+    <!-- ── REGISTER panel ── -->
+    <div class="auth-panel" id="panel-register">
+      <div class="modal-title">Create account</div>
+      <div class="modal-sub">Register to start submitting complaints</div>
+
+      <!-- Registration success -->
+      <div class="reg-success" id="reg-success">
+        <div class="reg-success-icon">🎉</div>
+        <h3>Account Created!</h3>
+        <p>You can now sign in with your new credentials.</p>
+        <button class="btn-login user" style="margin-top:1.25rem" onclick="switchTab('signin')">Go to Sign In</button>
+      </div>
+
+      <div id="reg-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="r-fname" placeholder="Priya" autocomplete="given-name">
+            <div class="err-msg" id="re-fname">Required</div>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="r-lname" placeholder="Sharma" autocomplete="family-name">
+            <div class="err-msg" id="re-lname">Required</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="r-email" placeholder="your@email.com" autocomplete="email">
+          <div class="err-msg" id="re-email">Enter a valid email</div>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="r-phone" placeholder="9876543210" maxlength="10" autocomplete="tel">
+          <div class="err-msg" id="re-phone">Enter a valid 10-digit number</div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="r-pass" placeholder="Min 8 characters" oninput="checkStrength()" autocomplete="new-password">
+          <div class="pwd-strength"><div class="pwd-strength-fill" id="str-fill"></div></div>
+          <div class="pwd-hint" id="str-hint"></div>
+          <div class="err-msg" id="re-pass">Minimum 8 characters required</div>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" id="r-cpass" placeholder="Re-enter password" autocomplete="new-password">
+          <div class="err-msg" id="re-cpass">Passwords do not match</div>
+        </div>
+        <button class="btn-login user" onclick="registerUser()">Create Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ ADMIN Modal ════════════════ -->
+<div class="overlay" id="overlay-admin">
+  <div class="modal admin-modal">
+    <button class="modal-close" onclick="closeLogin('admin')">✕</button>
+    <div class="modal-badge admin"><div class="modal-badge-dot"></div>Admin Portal</div>
+    <div class="modal-title">Admin Access</div>
+    <div class="modal-sub">Restricted to authorized personnel only</div>
+    <div class="form-group">
+      <label>Admin Username</label>
+      <input type="text" id="a-user" placeholder="admin username">
+      <div class="err-msg" id="ae-user">Username is required</div>
+    </div>
+    <div class="form-group">
+      <label>Admin Password</label>
+      <input type="password" id="a-pass" placeholder="••••••••">
+      <div class="err-msg" id="ae-pass">Password is required</div>
+    </div>
+    <button class="btn-login admin" onclick="loginAdmin()">Access Admin Portal</button>
+    <div class="demo-hint">Demo: <span onclick="fillDemo('admin')">click to fill credentials</span></div>
+  </div>
+</div>
+
+<script>
+// ── User store (localStorage so registrations persist across sessions) ──
+function getUsers(){
+  const raw = localStorage.getItem('cd_users');
+  if(raw) return JSON.parse(raw);
+  // seed demo users
+  const seed = [
+    {email:'user@demo.com', password:'user123', name:'Priya Sharma', phone:'9876543210'},
+    {email:'rahul@demo.com', password:'user123', name:'Rahul Verma', phone:'9988776655'},
+  ];
+  localStorage.setItem('cd_users', JSON.stringify(seed));
+  return seed;
+}
+function saveUsers(users){ localStorage.setItem('cd_users', JSON.stringify(users)); }
+
+const ADMINS = [{username:'admin', password:'admin123', name:'Admin User'}];
+
+// ── Tab switching ──
+function switchTab(tab){
+  ['signin','register'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active', t===tab);
+  });
+  // reset reg success state when switching back to register
+  if(tab==='register'){
+    document.getElementById('reg-success').classList.remove('show');
+    document.getElementById('reg-form').style.display='block';
+    document.getElementById('reg-form').style.opacity='1';
+  }
+}
+
+// ── Modal open/close ──
+function openLogin(role){ document.getElementById('overlay-'+role).classList.add('show'); }
+function closeLogin(role){
+  document.getElementById('overlay-'+role).classList.remove('show');
+  clearAllErrors();
+}
+document.getElementById('overlay-user').addEventListener('click',function(e){if(e.target===this)closeLogin('user')});
+document.getElementById('overlay-admin').addEventListener('click',function(e){if(e.target===this)closeLogin('admin')});
+
+function clearAllErrors(){
+  document.querySelectorAll('.err-msg').forEach(e=>e.classList.remove('show'));
+  document.querySelectorAll('input').forEach(i=>i.classList.remove('invalid'));
+}
+
+// ── Demo fill ──
+function fillDemo(role){
+  if(role==='user'){
+    switchTab('signin');
+    document.getElementById('u-email').value='user@demo.com';
+    document.getElementById('u-pass').value='user123';
+  } else {
+    document.getElementById('a-user').value='admin';
+    document.getElementById('a-pass').value='admin123';
+  }
+}
+
+// ── Field helpers ──
+function setErr(id, msg){
+  const e=document.getElementById('re-'+id)||document.getElementById('ue-'+id)||document.getElementById('ae-'+id);
+  const i=document.getElementById('r-'+id)||document.getElementById('u-'+id)||document.getElementById('a-'+id);
+  if(msg && e) e.textContent=msg;
+  if(e) e.classList.add('show');
+  if(i) i.classList.add('invalid');
+  return false;
+}
+function clrErr(id){
+  const e=document.getElementById('re-'+id)||document.getElementById('ue-'+id)||document.getElementById('ae-'+id);
+  const i=document.getElementById('r-'+id)||document.getElementById('u-'+id)||document.getElementById('a-'+id);
+  if(e) e.classList.remove('show');
+  if(i) i.classList.remove('invalid');
+}
+function v(id){ return (document.getElementById(id)||{}).value?.trim()||''; }
+
+// ── Password strength ──
+function checkStrength(){
+  const p = document.getElementById('r-pass').value;
+  const fill = document.getElementById('str-fill');
+  const hint = document.getElementById('str-hint');
+  let score=0, label='', color='';
+  if(p.length>=8) score++;
+  if(/[A-Z]/.test(p)) score++;
+  if(/[0-9]/.test(p)) score++;
+  if(/[^A-Za-z0-9]/.test(p)) score++;
+  const map=[
+    ['0%','',''],
+    ['25%','Weak','#ef4444'],
+    ['50%','Fair','#f59e0b'],
+    ['75%','Good','#4f9cf9'],
+    ['100%','Strong','#22c55e'],
+  ];
+  const [w,l,c]=map[score]||map[0];
+  fill.style.width=w; fill.style.background=c;
+  hint.textContent=l; hint.style.color=c;
+}
+
+// ── Sign In ──
+function loginUser(){
+  const email=v('u-email'), pass=document.getElementById('u-pass').value;
+  let ok=true;
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setErr('email','Enter a valid email');ok=false;}else clrErr('email');
+  if(!pass){setErr('pass','Password is required');ok=false;}else clrErr('pass');
+  if(!ok) return;
+
+  const users=getUsers();
+  const match=users.find(u=>u.email===email && u.password===pass);
+  if(!match){
+    document.getElementById('u-pass').classList.add('invalid');
+    document.getElementById('ue-pass').textContent='Invalid email or password';
+    document.getElementById('ue-pass').classList.add('show');
+    return;
+  }
+  // ✅ Store only this user's identity — complaints filtered by email in portal
+  sessionStorage.setItem('cd_role','user');
+  sessionStorage.setItem('cd_user', JSON.stringify({email:match.email,name:match.name,phone:match.phone}));
+  window.location.href='user-portal.html';
+}
+
+// ── Register ──
+function registerUser(){
+  const fname=v('r-fname'),lname=v('r-lname'),email=v('r-email');
+  const phone=v('r-phone'),pass=document.getElementById('r-pass').value,cpass=document.getElementById('r-cpass').value;
+  let ok=true;
+
+  if(!fname){setErr('fname','Required');ok=false;}else clrErr('fname');
+  if(!lname){setErr('lname','Required');ok=false;}else clrErr('lname');
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setErr('email','Enter a valid email');ok=false;}else clrErr('email');
+  if(!phone||!/^\d{10}$/.test(phone)){setErr('phone','Enter a valid 10-digit number');ok=false;}else clrErr('phone');
+  if(!pass||pass.length<8){setErr('pass','Minimum 8 characters required');ok=false;}else clrErr('pass');
+  if(pass!==cpass){setErr('cpass','Passwords do not match');ok=false;}else clrErr('cpass');
+  if(!ok) return;
+
+  const users=getUsers();
+  if(users.find(u=>u.email===email)){
+    setErr('email','An account with this email already exists');
+    return;
+  }
+
+  users.push({email,password:pass,name:fname+' '+lname,phone});
+  saveUsers(users);
+
+  // Show success
+  document.getElementById('reg-form').style.display='none';
+  document.getElementById('reg-success').classList.add('show');
+}
+
+// ── Admin Login ──
+function loginAdmin(){
+  const user=v('a-user'),pass=document.getElementById('a-pass').value;
+  let ok=true;
+  if(!user){setErr('user','Username is required');ok=false;}else clrErr('user');
+  if(!pass){setErr('pass','Password is required');ok=false;}else clrErr('pass');
+  if(!ok) return;
+  const match=ADMINS.find(a=>a.username===user && a.password===pass);
+  if(!match){
+    document.getElementById('a-pass').classList.add('invalid');
+    document.getElementById('ae-pass').textContent='Invalid username or password';
+    document.getElementById('ae-pass').classList.add('show');
+    return;
+  }
+  sessionStorage.setItem('cd_role','admin');
+  sessionStorage.setItem('cd_user', JSON.stringify(match));
+  window.location.href='admin-portal.html';
+}
+
+// ── Keyboard enter ──
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  if(document.getElementById('overlay-user').classList.contains('show')){
+    if(document.getElementById('panel-signin').classList.contains('active')) loginUser();
+    else registerUser();
+  }
+  if(document.getElementById('overlay-admin').classList.contains('show')) loginAdmin();
+});
+</script>
+</body>
+</html>

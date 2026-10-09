@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComplaintDesk — User Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6fb;
+  --bg2:#edf0f8;
+  --white:#ffffff;
+  --surface:#f9fafc;
+  --border:rgba(0,0,0,0.07);
+  --border2:rgba(0,0,0,0.12);
+  --accent:#4f9cf9;
+  --accent-dark:#2b7de9;
+  --accent-dim:rgba(79,156,249,0.1);
+  --accent-dim2:rgba(79,156,249,0.18);
+  --text:#1a1d2e;
+  --text2:#5a6080;
+  --text3:#a0a8c0;
+  --success:#22c55e;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --font-d:'Syne',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --r:12px;--rl:16px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;min-height:100vh}
+
+/* NAV */
+nav{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:0 2rem;
+  height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);
+}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
+.logo-pill{background:var(--accent);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:100px;text-transform:uppercase;margin-left:4px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:100px;background:var(--accent-dim);cursor:default}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.user-chip-name{font-size:13px;font-weight:500;color:var(--accent-dark)}
+.btn-logout{padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:transparent;font-family:var(--font-b);font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s}
+.btn-logout:hover{background:var(--bg2);color:var(--text)}
+
+.nav-tabs{display:flex;gap:4px}
+.tab{padding:7px 16px;border-radius:8px;border:none;background:transparent;font-family:var(--font-b);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
+.tab:hover{background:var(--bg);color:var(--text)}
+.tab.active{background:var(--accent-dim);color:var(--accent-dark);font-weight:600}
+
+/* LAYOUT */
+main{max-width:1000px;margin:0 auto;padding:2rem 2rem 4rem}
+.page{display:none;animation:fadeUp .3s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* PAGE HEADER */
+.page-hdr{margin-bottom:1.75rem}
+.page-hdr h2{font-family:var(--font-d);font-size:24px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
+.page-hdr p{color:var(--text2);font-size:14px}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:1.75rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.card-title{font-family:var(--font-d);font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.ci{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.ci-blue{background:var(--accent-dim)}
+.ci-green{background:rgba(34,197,94,0.1)}
+.ci-amber{background:rgba(245,158,11,0.1)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)}
+label .req{color:var(--accent)}
+input,select,textarea{
+  background:var(--surface);border:1px solid var(--border2);border-radius:9px;
+  padding:10px 13px;font-family:var(--font-b);font-size:14px;color:var(--text);
+  outline:none;transition:all .2s;width:100%;
+}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,156,249,0.12);background:#fff}
+input.invalid,select.invalid,textarea.invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,0.08)}
+textarea{resize:vertical;min-height:110px;line-height:1.6}
+select option{background:#fff}
+.err{font-size:12px;color:var(--danger);display:none;margin-top:2px;align-items:center;gap:4px}
+.err.show{display:flex}
+.err::before{content:'!';width:14px;height:14px;border-radius:50%;background:var(--danger);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* PRIORITY */
+.pri-pills{display:flex;gap:8px;flex-wrap:wrap}
+.pri-pill{padding:6px 16px;border-radius:100px;border:1.5px solid var(--border2);background:transparent;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--text2);font-family:var(--font-b)}
+.pri-pill:hover{background:var(--bg2)}
+.pri-pill[data-p="Low"].sel{background:rgba(34,197,94,0.1);color:#16a34a;border-color:rgba(34,197,94,0.3)}
+.pri-pill[data-p="Medium"].sel{background:var(--accent-dim);color:var(--accent-dark);border-color:rgba(79,156,249,0.3)}
+.pri-pill[data-p="High"].sel{background:rgba(245,158,11,0.1);color:#b45309;border-color:rgba(245,158,11,0.3)}
+.pri-pill[data-p="Critical"].sel{background:rgba(239,68,68,0.08);color:var(--danger);border-color:rgba(239,68,68,0.25)}
+
+.form-footer{display:flex;justify-content:flex-end;gap:10px;padding-top:1.25rem;border-top:1px solid var(--border);margin-top:.5rem}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:9px;border:1px solid var(--border2);background:transparent;font-family:var(--font-b);font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all .18s;text-decoration:none}
+.btn:hover{background:var(--bg2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 3px 12px rgba(79,156,249,0.3)}
+.btn-primary:hover{background:var(--accent-dark);box-shadow:0 5px 20px rgba(79,156,249,0.4);transform:translateY(-1px)}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.4px}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.b-pending{background:rgba(245,158,11,0.1);color:#b45309;border:1px solid rgba(245,158,11,0.2)}
+.b-pending::before{background:var(--warn)}
+.b-progress{background:var(--accent-dim);color:var(--accent-dark);border:1px solid rgba(79,156,249,0.2)}
+.b-progress::before{background:var(--accent)}
+.b-resolved{background:rgba(34,197,94,0.1);color:#16a34a;border:1px solid rgba(34,197,94,0.2)}
+.b-resolved::before{background:var(--success)}
+.b-rejected{background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}
+.b-rejected::before{background:var(--danger)}
+
+/* COMPLAINT CARDS (history) */
+.complaint-list{display:flex;flex-direction:column;gap:12px}
+.complaint-item{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--r);
+  padding:1.25rem 1.5rem;cursor:pointer;transition:all .2s;
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
+}
+.complaint-item:hover{border-color:rgba(79,156,249,0.3);box-shadow:0 4px 16px rgba(79,156,249,0.08);transform:translateY(-1px)}
+.ci-id{font-family:monospace;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:4px}
+.ci-subject{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ci-meta{font-size:12px;color:var(--text3);display:flex;gap:12px;flex-wrap:wrap}
+.ci-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+
+/* TRACK */
+.track-box{
+  background:linear-gradient(135deg,rgba(79,156,249,0.06),rgba(79,156,249,0.02));
+  border:1px solid rgba(79,156,249,0.15);
+  border-radius:var(--rl);padding:2rem;text-align:center;margin-bottom:1.25rem;
+}
+.track-box h3{font-family:var(--font-d);font-size:20px;font-weight:700;margin-bottom:.4rem}
+.track-box p{color:var(--text2);font-size:13px;margin-bottom:1.5rem}
+.track-row{display:flex;gap:10px;justify-content:center;max-width:420px;margin:0 auto}
+.track-row input{flex:1;text-align:center;font-family:monospace;font-size:14px;letter-spacing:1px}
+
+/* DETAIL PANEL */
+.detail-panel{display:none}
+.detail-panel.show{display:block;animation:fadeUp .3s ease}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.info-box{background:var(--surface);border-radius:9px;padding:12px 14px;border:1px solid var(--border)}
+.info-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.info-val{font-size:13px;font-weight:500;color:var(--text)}
+.desc-box{background:var(--surface);border-radius:9px;padding:14px 16px;margin-bottom:1.25rem;border:1px solid var(--border)}
+.desc-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px}
+
+.admin-note{background:rgba(79,156,249,0.06);border:1px solid rgba(79,156,249,0.15);border-radius:9px;padding:12px 16px;margin-bottom:1.25rem;display:flex;gap:10px}
+.admin-note-icon{font-size:18px;flex-shrink:0}
+.admin-note-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:4px}
+.admin-note-text{font-size:13px;color:var(--text2)}
+
+/* STEPPER */
+.stepper{display:flex;align-items:flex-start;gap:0;margin:1.25rem 0}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border2);z-index:0}
+.step.done:not(:last-child)::after{background:var(--success)}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);z-index:1;transition:all .3s}
+.step.done .step-dot{background:var(--success);border-color:var(--success);color:#fff}
+.step.active .step-dot{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(79,156,249,0.15)}
+.step-lbl{font-size:11px;font-weight:500;color:var(--text3);text-align:center;line-height:1.3}
+.step.done .step-lbl,.step.active .step-lbl{color:var(--text2)}
+
+/* SUCCESS */
+.success-wrap{display:none;text-align:center;padding:3rem 1.5rem}
+.success-wrap.show{display:block;animation:fadeUp .4s ease}
+.success-circle{width:68px;height:68px;border-radius:50%;background:rgba(34,197,94,0.12);border:2px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.5rem;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.success-wrap h2{font-family:var(--font-d);font-size:24px;font-weight:700;margin-bottom:.5rem}
+.success-wrap p{color:var(--text2);font-size:14px}
+.id-badge{display:inline-block;background:var(--accent-dim);border:1px solid rgba(79,156,249,0.2);border-radius:9px;padding:8px 22px;font-family:monospace;font-size:19px;font-weight:700;color:var(--accent-dark);letter-spacing:2px;margin:1rem 0}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:1rem;right:1rem;z-index:300;display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;border:1px solid;opacity:0;transform:translateX(80px);transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;min-width:240px}
+.toast.show{opacity:1;transform:none;pointer-events:all}
+.toast.success{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.toast.error{background:#fef2f2;border-color:#fecaca;color:#dc2626}
+.toast.info{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text3)}
+.empty-icon{font-size:32px;margin-bottom:.75rem;opacity:.5}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.stat-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px}
+.stat-num{font-family:var(--font-d);font-size:26px;font-weight:700}
+
+@media(max-width:650px){
+  .form-grid{grid-template-columns:1fr}
+  .fg.full{grid-column:1}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .info-grid{grid-template-columns:1fr 1fr}
+  nav{padding:0 1rem}
+  .nav-tabs{display:none}
+  main{padding:1.5rem 1rem 3rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex;align-items:center;gap:1.5rem">
+    <a class="logo" href="index.html">
+      📋 ComplaintDesk
+      <span class="logo-pill">User</span>
+    </a>
+    <div class="nav-tabs">
+      <button class="tab active" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="tab" onclick="showPage('register')">New Complaint</button>
+      <button class="tab" onclick="showPage('track')">Track</button>
+      <button class="tab" onclick="showPage('history')">My Complaints</button>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="user-chip">
+      <div class="user-avatar" id="avatar-initials">U</div>
+      <span class="user-chip-name" id="user-display-name">User</span>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-hdr">
+      <h2 id="welcome-msg">Welcome back 👋</h2>
+      <p>Here's an overview of your complaints</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-lbl">Total Filed</div><div class="stat-num" id="ds-total" style="color:var(--accent)">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">Pending</div><div class="stat-num" id="ds-pending" style="color:var(--warn)">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">In Progress</div><div class="stat-num" id="ds-prog" style="color:var(--accent)">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">Resolved</div><div class="stat-num" id="ds-res" style="color:var(--success)">0</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><div class="ci ci-blue">🕐</div>Recent Activity</div>
+        <button class="btn btn-sm" onclick="showPage('history')">View all →</button>
+      </div>
+      <div id="recent-list" class="complaint-list"></div>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="page-register" class="page">
+    <div class="page-hdr">
+      <h2>Register a Complaint</h2>
+      <p>Fields marked <span style="color:var(--accent)">*</span> are required</p>
+    </div>
+    <div id="reg-form-wrap">
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><div class="ci ci-blue">👤</div>Your Information</div></div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="f-name" placeholder="Your full name">
+            <div class="err" id="e-name">Name is required</div>
+          </div>
+          <div class="fg">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="f-email" placeholder="email@example.com">
+            <div class="err" id="e-email">Valid email required</div>
+          </div>
+          <div class="fg">
+            <label>Phone</label>
+            <input type="tel" id="f-phone" placeholder="10-digit number">
+            <div class="err" id="e-phone">Enter valid 10-digit number</div>
+          </div>
+          <div class="fg">
+            <label>Address / City</label>
+            <input type="text" id="f-addr" placeholder="City, State">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><div class="ci ci-amber">📝</div>Complaint Details</div></div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>Category <span class="req">*</span></label>
+            <select id="f-cat">
+              <option value="">— Select —</option>
+              <option>Billing Issue</option>
+              <option>Service Outage</option>
+              <option>Product Defect</option>
+              <option>Staff Behaviour</option>
+              <option>Delivery Problem</option>
+              <option>Technical Support</option>
+              <option>Fraud / Scam</option>
+              <option>Other</option>
+            </select>
+            <div class="err" id="e-cat">Select a category</div>
+          </div>
+          <div class="fg">
+            <label>Department</label>
+            <select id="f-dept">
+              <option value="">— Select (optional) —</option>
+              <option>Customer Service</option>
+              <option>Technical</option>
+              <option>Billing</option>
+              <option>Logistics</option>
+              <option>Management</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <label>Subject <span class="req">*</span></label>
+            <input type="text" id="f-subj" placeholder="Brief one-line subject">
+            <div class="err" id="e-subj">Subject is required</div>
+          </div>
+          <div class="fg full">
+            <label>Priority</label>
+            <div class="pri-pills">
+              <button class="pri-pill" data-p="Low" onclick="setPri('Low')">Low</button>
+              <button class="pri-pill sel" data-p="Medium" onclick="setPri('Medium')">Medium</button>
+              <button class="pri-pill" data-p="High" onclick="setPri('High')">High</button>
+              <button class="pri-pill" data-p="Critical" onclick="setPri('Critical')">Critical</button>
+            </div>
+          </div>
+          <div class="fg full">
+            <label>Description <span class="req">*</span></label>
+            <textarea id="f-desc" placeholder="Describe your issue in detail. Include dates, reference numbers, and any relevant information…"></textarea>
+            <div class="err" id="e-desc">At least 20 characters required</div>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button class="btn" onclick="clearForm()">Clear</button>
+          <button class="btn btn-primary" onclick="submitForm()">✦ Submit Complaint</button>
+        </div>
+      </div>
+    </div>
+    <!-- Success -->
+    <div id="success-wrap" class="success-wrap">
+      <div class="success-circle">✓</div>
+      <h2>Complaint Submitted!</h2>
+      <p>Your complaint has been registered successfully.</p>
+      <p style="color:var(--text3);font-size:12px;margin-top:4px">Save your complaint ID to track progress</p>
+      <div class="id-badge" id="success-id-display"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:1.5rem;flex-wrap:wrap">
+        <button class="btn" onclick="goTrack()">Track this →</button>
+        <button class="btn btn-primary" onclick="newComplaint()">Submit another</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACK -->
+  <div id="page-track" class="page">
+    <div class="track-box">
+      <h3>🔍 Track your complaint</h3>
+      <p>Enter your complaint ID to see real-time status and updates</p>
+      <div class="track-row">
+        <input type="text" id="track-in" placeholder="e.g. CMP-001" oninput="this.value=this.value.toUpperCase()">
+        <button class="btn btn-primary" onclick="doTrack()">Track →</button>
+      </div>
+    </div>
+    <div id="track-result" class="detail-panel"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="page-history" class="page">
+    <div class="page-hdr">
+      <h2>My Complaints</h2>
+      <p>All complaints registered under your account</p>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap">
+      <select id="h-status" onchange="renderHistory()" style="max-width:160px;padding:7px 11px;font-size:13px">
+        <option value="">All statuses</option>
+        <option>Pending</option>
+        <option>In Progress</option>
+        <option>Resolved</option>
+        <option>Rejected</option>
+      </select>
+      <input type="text" id="h-search" placeholder="Search complaints…" oninput="renderHistory()" style="max-width:220px;padding:7px 11px;font-size:13px">
+    </div>
+    <div id="history-list" class="complaint-list"></div>
+  </div>
+
+</main>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ==================== AUTH CHECK (fixed: stops execution on redirect) ====================
+(function guardAuth() {
+  var role    = sessionStorage.getItem('cd_role');
+  var userStr = sessionStorage.getItem('cd_user');
+  if (role !== 'user' || !userStr) {
+    window.location.replace('index.html');
+    throw new Error('Not authenticated — redirecting');
+  }
+  try {
+    var u = JSON.parse(userStr);
+    if (!u || !u.name || !u.email) throw new Error('Corrupt session data');
+  } catch(e) {
+    sessionStorage.clear();
+    window.location.replace('index.html');
+    throw e;
+  }
+})();
+
+const currentUser = JSON.parse(sessionStorage.getItem('cd_user'));
+
+// ==================== INIT ====================
+document.getElementById('user-display-name').textContent = currentUser.name;
+document.getElementById('avatar-initials').textContent = currentUser.name.split(' ').map(function(n){return n[0];}).join('').slice(0,2).toUpperCase();
+document.getElementById('welcome-msg').textContent = 'Welcome back, ' + currentUser.name.split(' ')[0] + ' 👋';
+
+// Pre-fill user info in complaint form
+document.getElementById('f-email').value = currentUser.email || '';
+document.getElementById('f-name').value  = currentUser.name  || '';
+
+// ==================== DATA (localStorage — persists across sessions, filtered per user) ====================
+function loadComplaints(){ return JSON.parse(localStorage.getItem('cd_complaints')||'[]'); }
+function saveComplaints(data){ localStorage.setItem('cd_complaints', JSON.stringify(data)); }
+
+// Seed demo data once
+if(!localStorage.getItem('cd_seeded')){
+  saveComplaints([
+    {id:'CMP-001',owner:'user@demo.com',name:'Priya Sharma',email:'user@demo.com',phone:'9876543210',address:'Mumbai',category:'Billing Issue',department:'Billing',subject:'Charged twice for order #45678',description:'I was charged twice for order #45678 on 28 March 2026. Kindly refund the duplicate charge.',priority:'High',status:'In Progress',date:'2026-03-28',note:'Under review. Refund processing.'},
+    {id:'CMP-002',owner:'user@demo.com',name:'Priya Sharma',email:'user@demo.com',phone:'9876543210',address:'Mumbai',category:'Delivery Problem',department:'Logistics',subject:'Package delayed by 10 days',description:'My order placed on March 20 has still not arrived despite the estimated delivery date being March 25.',priority:'Medium',status:'Pending',date:'2026-03-20',note:''},
+    {id:'CMP-003',owner:'user@demo.com',name:'Priya Sharma',email:'user@demo.com',phone:'9876543210',address:'Mumbai',category:'Product Defect',department:'Customer Service',subject:'Screen flickering on new laptop',description:'The screen on the laptop I received flickers every few minutes. This has been happening since day one.',priority:'High',status:'Resolved',date:'2026-03-10',note:'Replacement unit shipped. Tracking ID: DHL99887.'},
+    {id:'CMP-004',owner:'rahul@demo.com',name:'Rahul Verma',email:'rahul@demo.com',phone:'9988776655',address:'Delhi',category:'Technical Support',department:'Technical',subject:'Internet connection dropping every hour',description:'My broadband connection has been intermittently dropping every hour since last week.',priority:'High',status:'Pending',date:'2026-04-01',note:''},
+  ]);
+  localStorage.setItem('cd_counter','5');
+  localStorage.setItem('cd_seeded','1');
+}
+
+// ── SECURITY: users can only see & track THEIR OWN complaints ──
+function myComplaints(){ return loadComplaints().filter(c=>c.owner===currentUser.email); }
+
+let selectedPri = 'Medium';
+let lastId = '';
+
+// ==================== NAVIGATION ====================
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const tabs = {'dashboard':0,'register':1,'track':2,'history':3};
+  const t = document.querySelectorAll('.tab')[tabs[name]];
+  if(t) t.classList.add('active');
+  if(name==='dashboard') renderDashboard();
+  if(name==='history') renderHistory();
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard(){
+  const all = myComplaints();
+  document.getElementById('ds-total').textContent=all.length;
+  document.getElementById('ds-pending').textContent=all.filter(c=>c.status==='Pending').length;
+  document.getElementById('ds-prog').textContent=all.filter(c=>c.status==='In Progress').length;
+  document.getElementById('ds-res').textContent=all.filter(c=>c.status==='Resolved').length;
+  const recent = all.slice(0,3);
+  const el = document.getElementById('recent-list');
+  if(!recent.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>No complaints yet. <button class="btn btn-sm btn-primary" onclick="showPage(\'register\')">Register one</button></p></div>';
+  } else {
+    el.innerHTML = recent.map(c=>complaintCard(c)).join('');
+  }
+}
+
+function complaintCard(c){
+  const scls={Pending:'b-pending','In Progress':'b-progress',Resolved:'b-resolved',Rejected:'b-rejected'};
+  const pcol={Low:'#16a34a',Medium:'#2b7de9',High:'#b45309',Critical:'#dc2626'};
+  return `<div class="complaint-item" onclick="viewComplaint('${c.id}')">
+    <div>
+      <div class="ci-id">${c.id}</div>
+      <div class="ci-subject">${c.subject}</div>
+      <div class="ci-meta">
+        <span>${c.category}</span>
+        <span style="color:${pcol[c.priority]};font-weight:600">${c.priority}</span>
+        <span>${c.date}</span>
+      </div>
+    </div>
+    <div class="ci-right">
+      <span class="badge ${scls[c.status]||'b-pending'}">${c.status}</span>
+      ${c.note?'<span style="font-size:10px;color:var(--accent)">Admin note ↓</span>':''}
+    </div>
+  </div>`;
+}
+
+function viewComplaint(id){
+  showPage('track');
+  setTimeout(()=>{
+    document.getElementById('track-in').value=id;
+    doTrack();
+  },50);
+}
+
+// ==================== REGISTER ====================
+function setPri(p){
+  selectedPri=p;
+  document.querySelectorAll('.pri-pill').forEach(el=>el.classList.toggle('sel',el.dataset.p===p));
+}
+
+function clearErr(...ids){
+  ids.forEach(id=>{
+    const e=document.getElementById('e-'+id), i=document.getElementById('f-'+id);
+    if(e) e.classList.remove('show');
+    if(i) i.classList.remove('invalid');
+  });
+}
+function setErr(id){ document.getElementById('e-'+id)?.classList.add('show'); document.getElementById('f-'+id)?.classList.add('invalid'); return false; }
+function v(id){ return (document.getElementById(id)||{}).value?.trim()||''; }
+
+function submitForm(){
+  clearErr('name','email','phone','cat','subj','desc');
+  let ok=true;
+  if(!v('f-name')) ok=setErr('name');
+  if(!v('f-email')||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('f-email'))) ok=setErr('email');
+  const ph=v('f-phone');
+  if(ph&&!/^\d{10}$/.test(ph.replace(/\s/g,''))) ok=setErr('phone');
+  if(!v('f-cat')) ok=setErr('cat');
+  if(!v('f-subj')) ok=setErr('subj');
+  if(v('f-desc').length<20) ok=setErr('desc');
+  if(!ok){ toast('Fix the highlighted errors','error'); return; }
+
+  const counter = parseInt(localStorage.getItem('cd_counter')||'5');
+  const id = 'CMP-' + String(counter).padStart(3,'0');
+  localStorage.setItem('cd_counter', String(counter+1));
+  lastId = id;
+
+  const all = loadComplaints();
+  all.unshift({
+    id, owner: currentUser.email,
+    name:v('f-name'), email:v('f-email'), phone:v('f-phone'), address:v('f-addr'),
+    category:v('f-cat'), department:v('f-dept')||'Unassigned',
+    subject:v('f-subj'), description:v('f-desc'),
+    priority:selectedPri, status:'Pending',
+    date:new Date().toISOString().slice(0,10), note:''
+  });
+  saveComplaints(all);
+
+  document.getElementById('reg-form-wrap').style.display='none';
+  document.getElementById('success-id-display').textContent=id;
+  document.getElementById('success-wrap').classList.add('show');
+  toast('Complaint '+id+' submitted!','success');
+}
+
+function clearForm(){
+  ['f-name','f-phone','f-addr','f-subj','f-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('f-email').value=currentUser.email;
+  ['f-cat','f-dept'].forEach(id=>{const e=document.getElementById(id);if(e)e.selectedIndex=0;});
+  setPri('Medium');
+  clearErr('name','email','phone','cat','subj','desc');
+}
+
+function newComplaint(){
+  document.getElementById('success-wrap').classList.remove('show');
+  document.getElementById('reg-form-wrap').style.display='';
+  clearForm();
+}
+
+function goTrack(){
+  document.getElementById('success-wrap').classList.remove('show');
+  document.getElementById('reg-form-wrap').style.display='';
+  showPage('track');
+  setTimeout(()=>{ document.getElementById('track-in').value=lastId; doTrack(); },100);
+}
+
+// ==================== TRACK ====================
+function doTrack(){
+  const id = document.getElementById('track-in').value.trim().toUpperCase();
+  const div = document.getElementById('track-result');
+  // ── SECURITY: only show complaints owned by the logged-in user ──
+  const c = myComplaints().find(x=>x.id===id);
+
+  div.classList.add('show');
+  if(!c){
+    div.innerHTML=`<div class="card" style="text-align:center;padding:2.5rem">
+      <div style="font-size:36px;margin-bottom:.75rem;opacity:.4">🔍</div>
+      <div style="font-size:15px;font-weight:600">Not found</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:5px">No complaint found with ID <code style="color:var(--accent);background:var(--accent-dim);padding:2px 6px;border-radius:4px">${id}</code> in your account.</div>
+    </div>`;
+    return;
+  }
+
+  const sIdx={Pending:1,'In Progress':2,Resolved:3,Rejected:3};
+  const cur=sIdx[c.status]||0;
+  const steps=[{l:'Submitted'},{l:'Under Review'},{l:'In Progress'},{l:'Resolved'}];
+  const stepHTML=steps.map((s,i)=>{
+    const cls=i<cur?'done':i===cur?'active':'';
+    return `<div class="step ${cls}"><div class="step-dot">${i<cur?'✓':i+1}</div><div class="step-lbl">${s.l}</div></div>`;
+  }).join('');
+
+  const scls={Pending:'b-pending','In Progress':'b-progress',Resolved:'b-resolved',Rejected:'b-rejected'};
+  const pcol={Low:'#16a34a',Medium:'#2b7de9',High:'#b45309',Critical:'#dc2626'};
+
+  div.innerHTML=`<div class="card">
+    <div class="card-hdr">
+      <div class="card-title"><div class="ci ci-blue">📋</div>Complaint Details</div>
+      <span class="badge ${scls[c.status]||'b-pending'}">${c.status}</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-box"><div class="info-lbl">Complaint ID</div><div class="info-val" style="font-family:monospace;color:var(--accent);font-size:15px">${c.id}</div></div>
+      <div class="info-box"><div class="info-lbl">Filed by</div><div class="info-val">${c.name}</div></div>
+      <div class="info-box"><div class="info-lbl">Date filed</div><div class="info-val">${c.date}</div></div>
+      <div class="info-box"><div class="info-lbl">Category</div><div class="info-val">${c.category}</div></div>
+      <div class="info-box"><div class="info-lbl">Priority</div><div class="info-val" style="color:${pcol[c.priority]};font-weight:600">${c.priority}</div></div>
+      <div class="info-box"><div class="info-lbl">Department</div><div class="info-val">${c.department}</div></div>
+    </div>
+    <div class="desc-box"><div class="desc-lbl">Subject</div><div style="font-size:15px;font-weight:600;color:var(--text)">${c.subject}</div></div>
+    <div class="desc-box"><div class="desc-lbl">Description</div><div style="font-size:13px;color:var(--text2);line-height:1.7">${c.description}</div></div>
+    ${c.note?`<div class="admin-note"><div class="admin-note-icon">💬</div><div><div class="admin-note-lbl">Admin Update</div><div class="admin-note-text">${c.note}</div></div></div>`:''}
+    <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:.75rem">Progress</div><div class="stepper">${stepHTML}</div></div>
+  </div>`;
+}
+
+// ==================== HISTORY ====================
+function renderHistory(){
+  const fStatus = document.getElementById('h-status').value;
+  const fSearch = document.getElementById('h-search').value.toLowerCase();
+  let data = myComplaints();
+  if(fStatus) data=data.filter(c=>c.status===fStatus);
+  if(fSearch) data=data.filter(c=>c.subject.toLowerCase().includes(fSearch)||c.id.toLowerCase().includes(fSearch)||c.category.toLowerCase().includes(fSearch));
+  const el=document.getElementById('history-list');
+  if(!data.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>No complaints match your filters</p></div>';
+  } else {
+    el.innerHTML=data.map(c=>complaintCard(c)).join('');
+  }
+}
+
+// ==================== TOAST ====================
+function toast(msg,type='info'){
+  const icons={success:'✓',error:'✕',info:'ℹ'};
+  const d=document.createElement('div');
+  d.className='toast '+type;
+  d.innerHTML=`<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-wrap').appendChild(d);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('show')));
+  setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),400);},3000);
+}
+
+// ==================== LOGOUT ====================
+function logout(){
+  sessionStorage.removeItem('cd_role');
+  sessionStorage.removeItem('cd_user');
+  window.location.href='index.html';
+}
+
+// ==================== BOOT ====================
+renderDashboard();
+</script>
+</body>
+</html>
